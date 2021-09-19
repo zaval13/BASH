@@ -29,7 +29,7 @@ spawn mysql_secure_installation
 expect \"Enter current password for root:\"
 send \"$MYSQL\r\"
 expect \"Would you like to setup VALIDATE PASSWORD plugin?\"
-send \"n\r\" 
+send \"n\r\"
 expect \"Change the password for root ?\"
 send \"n\r\"
 expect \"Remove anonymous users?\"
@@ -45,8 +45,8 @@ expect eof
 echo "$SECURE_MYSQL"
 
 #setup wordpress db
-PASS="0000"
-USER="dbuser"
+PASS=$2
+USER=$1
 mysql -u root <<MYSQL_SCRIPT
 CREATE DATABASE wordpress;
 CREATE USER '$USER'@'localhost' IDENTIFIED BY '$PASS';
@@ -54,15 +54,13 @@ GRANT ALL PRIVILEGES ON wordpress.* TO '$USER'@'localhost';
 FLUSH PRIVILEGES;
 MYSQL_SCRIPT
 echo "MySQL user created."
-echo "Username:   $USER"
-echo "Password:   $PASS"
 systemctl restart httpd
 systemctl restart mariadb
 
 #install wordpress
 sudo yum install -y wget unzip
 sudo wget -P /opt http://wordpress.org/latest.zip
-sudo unzip -q latest.zip -d /var/www/html/
+sudo unzip -q /opt/latest.zip -d /var/www/html/
 sudo chown -R apache:apache /var/www/html/wordpress/
 sudo chmod -R 755 /var/www/html/wordpress/
 sudo mkdir -p /var/www/html/wordpress/wp-content/uploads
@@ -71,8 +69,8 @@ sudo mv /var/www/html/wordpress/wp-config-sample.php /var/www/html/wordpress/wp-
 
 #setup wp-config
 sed -i 's/database_name_here/wordpress/' /var/www/html/wordpress/wp-config.php
-sed -i 's/username_here/dbuser/' /var/www/html/wordpress/wp-config.php
-sed -i 's/password_here/0000/' /var/www/html/wordpress/wp-config.php
+sed -i "s/username_here/$1/" /var/www/html/wordpress/wp-config.php
+sed -i "s/password_here/$2/" /var/www/html/wordpress/wp-config.php
 
 #firewall rule
 firewall-cmd --add-service=http --permanent
