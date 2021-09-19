@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #install LAMP + wordpress
-#use 2 argumens (./lamp-wordpress.sh <DB user> <DB Password>)
+#use 2 argumens (./lamp-wordpress.sh <DB user> <DB password>)
 
 #install httpd
 yum install httpd -y
